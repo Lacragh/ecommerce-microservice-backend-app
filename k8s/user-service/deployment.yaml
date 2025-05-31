@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: ecommerce-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: selimhorri/user-service-ecommerce-boot:0.1.0
+          ports:
+            - containerPort: 8700
+          envFrom:
+            - configMapRef:
+                name: app-config

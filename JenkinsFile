@@ -1,0 +1,67 @@
+// Jenkinsfile
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_COMPOSE_FILE = 'compose.yml'
+        CORE_COMPOSE_FILE = 'core.yml'
+        REGISTRY = 'turegistro.azurecr.io' // Cambia por tu registro real
+        K8S_DIR = 'k8s'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/Lacragh/ecommerce-microservice-backend-app.git'
+            }
+        }
+        stage('Build JARs') {
+            steps {
+                sh './mvnw clean package -DskipTests'
+            }
+        }
+        stage('Build Docker Images') {
+            steps {
+                sh "docker-compose -f ${DOCKER_COMPOSE_FILE} build"
+                sh "docker-compose -f ${CORE_COMPOSE_FILE} build"
+            }
+        }
+        stage('Push Docker Images') {
+            steps {
+                sh "docker-compose -f ${DOCKER_COMPOSE_FILE} push"
+                sh "docker-compose -f ${CORE_COMPOSE_FILE} push"
+            }
+        }
+        stage('Deploy Config to Kubernetes') {
+            steps {
+                withKubeConfig([credentialsId: 'kubeconfig-jenkins']) {
+                    sh "kubectl apply -f ${K8S_DIR}/config/"
+                }
+            }
+        }
+        stage('Deploy Microservices to Kubernetes') {
+            steps {
+                withKubeConfig([credentialsId: 'kubeconfig-jenkins']) {
+                    def services = [
+                        'api-gateway',
+                        'order-service',
+                        'payment-service',
+                        'product-service',
+                        'shipping-service',
+                        'user-service'
+                    ]
+                    for (svc in services) {
+                        sh "kubectl apply -f ${K8S_DIR}/${svc}/"
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            // Limpieza opcional
+            // sh "docker-compose -f ${DOCKER_COMPOSE_FILE} down"
+            // sh "docker-compose -f ${CORE_COMPOSE_FILE} down"
+        }
+    }
+}

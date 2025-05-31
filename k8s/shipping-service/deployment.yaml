@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shipping-service
+  namespace: ecommerce-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shipping-service
+  template:
+    metadata:
+      labels:
+        app: shipping-service
+    spec:
+      containers:
+        - name: shipping-service
+          image: selimhorri/shipping-service-ecommerce-boot:0.1.0
+          ports:
+            - containerPort: 8600
+          envFrom:
+            - configMapRef:
+                name: app-config

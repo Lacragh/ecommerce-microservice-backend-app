@@ -7,6 +7,17 @@ services:
       - 8300:8300
     environment:
       - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_ZIPKIN_BASE-URL=http://zipkin:9411
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://cloud-config-container:9296/
+      - EUREKA_CLIENT_REGION=default
+      - EUREKA_CLIENT_AVAILABILITYZONES_DEFAULT=myzone
+      - EUREKA_CLIENT_SERVICEURL_MYZONE=http://service-discovery-container:8761/eureka
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery-container:8761/eureka/
 
+    networks:
+      - microservices_network
 
-
+    networks:
+      microservices_network:
+        driver: bridge
