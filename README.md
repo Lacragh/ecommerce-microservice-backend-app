@@ -237,7 +237,7 @@ User-service incluye 5 pruebas unitarias implementadas con **JUnit 5** y **Mocki
     }
 }
 ```
-
+![alt text](image-2.png)
 ### Pruebas de Integración 
 
 Validan la comunicación entre servicios `user-service` `order-service` `shipping-service`
@@ -287,7 +287,7 @@ Validan la comunicación entre servicios `user-service` `order-service` `shippin
     }
 }
 ```
-
+![alt text](image-3.png)
 ---
 
 ### Pruebas End-to-End
