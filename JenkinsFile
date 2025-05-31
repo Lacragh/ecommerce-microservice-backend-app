@@ -1,4 +1,4 @@
-// Jenkinsfile
+
 pipeline {
     agent any
 
@@ -52,6 +52,37 @@ pipeline {
                     ]
                     for (svc in services) {
                         sh "kubectl apply -f ${K8S_DIR}/${svc}/"
+                    }
+                }
+            }
+        }
+         stage('Quality Assurance') {
+            when {
+                expression { !params.SKIP_TESTS }
+            }
+            steps {
+                script {
+                    echo "=== TEST ==="
+                    
+                    def testServices = ['user-service', 'order-service', 'payment-service']
+                    def testResults = [:]
+                    
+                    testServices.each { service ->
+                        if (fileExists("${service}/pom.xml")) {
+                            testResults[service] = executeTests(service)
+                        } else {
+                            testResults[service] = 'SKIPPED'
+                        }
+                    }
+                    
+                    // Advanced tests for key services
+                    if (fileExists('proxy-client/pom.xml')) {
+                        testResults['integration'] = executeIntegrationTests()
+                    }
+                    
+                    echo "=== TEST SUMMARY ==="
+                    testResults.each { test, status ->
+                        echo "${test}: ${status}"
                     }
                 }
             }

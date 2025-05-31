@@ -1,4 +1,3 @@
-
 version: '3'
 services:
   api-gateway-container:
@@ -121,15 +120,18 @@ services:
       - EUREKA_CLIENT_SERVICEURL_MYZONE=http://service-discovery-container:8761/eureka
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://service-discovery-container:8761/eureka/
 
-    locust:
+  locust:
     build:
       context: ./locus
     ports:
       - "8089:8089"
     environment:
-      - LOCUST_HOST=http://order-service:8300  # Cambia por el host y puerto del microservicio que quieres probar
+      - LOCUST_HOST=http://shipping-service-container:8300
     depends_on:
-      - order-service  # O el servicio que quieras testear
+      - shipping-service-container
+    networks:
+      - microservices_network
+      
 networks:
   microservices_network:
     driver: bridge
